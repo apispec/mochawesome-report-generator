@@ -79,7 +79,7 @@ module.exports = {
   },
   module: {
     rules: [
-      eslint({ enforce: 'pre' }),
+      //eslint({ enforce: 'pre' }),
       babel({}, pkg.version),
       globalCss({
         importLoaders: 1,

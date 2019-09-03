@@ -47,6 +47,7 @@ const Suite = t.declare('Suite');
 Suite.define(
   t.struct({
     title: t.String,
+    options: t.maybe(t.Object),
     suites: t.list(Suite),
     tests: t.list(Test),
     root: t.Boolean,

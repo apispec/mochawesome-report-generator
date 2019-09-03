@@ -139,3 +139,17 @@
     }
   }
 }
+
+.description {
+  @apply --font-regular;
+
+  color: var(--black54);
+  margin: 10px 0 0 0;
+
+}
+
+.description p {
+  margin: 0;
+}
+
+

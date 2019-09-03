@@ -7,6 +7,7 @@ import { SuiteChart, SuiteList, SuiteSummary } from 'components/suite';
 import classNames from 'classnames/bind';
 import isEqual from 'lodash/isEqual';
 import styles from './suite.css';
+import ReactMarkdown from 'react-markdown'
 
 const cx = classNames.bind(styles);
 
@@ -43,6 +44,7 @@ class Suite extends Component {
       title,
       file,
       duration,
+      options,
     } = suite;
 
     const hasSuites = !isEmpty(suites);
@@ -76,7 +78,8 @@ class Suite extends Component {
           tests={tests}
           beforeHooks={beforeHooks}
           afterHooks={afterHooks}
-          enableCode={enableCode}
+          enableCode={enableCode && (!options || !options.noCode)}
+          enableStack={!options || !options.noStack}
         />
       );
 
@@ -114,6 +117,7 @@ class Suite extends Component {
     }
 
     const hideHeader = root && !hasTests && (hasBeforeHooks || hasAfterHooks);
+    const showFile = file !== '' && (!options || !options.noFile)
 
     return (
       <li id={uuid}>
@@ -129,7 +133,8 @@ class Suite extends Component {
                 <span>{title}</span>
                 <Icon name={expanded ? 'expand_less' : 'expand_more'} className={cx('icon')} size={18} />
               </h3>}
-              {file !== '' && <h6 className={cx('filename')}>{file}</h6>}
+              {showFile && <h6 className={cx('filename')}>{file}</h6>}
+              {options && options.description && <ReactMarkdown className={cx('description')} source={options.description} />}
               {hasTests && enableChart && <SuiteChart {...chartProps} />}
               {hasTests && <SuiteSummary {...summaryProps} />}
               </button>

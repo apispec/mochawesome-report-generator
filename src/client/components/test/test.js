@@ -12,10 +12,12 @@ class Test extends PureComponent {
   static propTypes = {
     test: PropTypes.object,
     enableCode: PropTypes.bool,
+    enableStack: PropTypes.bool
   };
 
   static defaultProps = {
     enableCode: true,
+    enableStack: false,
   };
 
   constructor() {
@@ -41,7 +43,7 @@ class Test extends PureComponent {
   }
 
   render() {
-    const { test, enableCode } = this.props;
+    const { test, enableCode, enableStack } = this.props;
     const {
       uuid,
       title,
@@ -147,11 +149,12 @@ class Test extends PureComponent {
           <div className={cx('body-wrap')}>
             <div className={cx('body')}>
               {
-                <CodeSnippet
+                enableStack && <CodeSnippet
                   className={cx('code-snippet')}
                   code={err.estack}
                   highlight={false}
                   label="Stack Trace"
+                  showLabel
                 />
               }
               {
@@ -160,6 +163,7 @@ class Test extends PureComponent {
                   code={err.diff}
                   lang="diff"
                   label="Diff"
+                  showLabel
                 />
               }
               {enableCode && (
@@ -167,6 +171,7 @@ class Test extends PureComponent {
                   className={cx('code-snippet')}
                   code={code}
                   label="Test Code"
+                  showLabel
                 />
               )}
               {!!context && <TestContext context={context} />}

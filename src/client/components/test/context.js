@@ -122,11 +122,7 @@ class TestContext extends Component {
     // All other types (primitives, objects, arrays...)
     const code = JSON.stringify(content, null, 2);
     return (
-      <CodeSnippet
-        className={cx('code-snippet')}
-        code={code}
-        highlight={highlight}
-      />
+      <CodeSnippet className={cx('code-snippet')} code={code} highlight={highlight} label={title} showLabel />
     );
   };
 
@@ -146,10 +142,7 @@ class TestContext extends Component {
     // Context is an object with title and value
     const { title, value } = ctx;
     return (
-      <div {...containerProps}>
-        <h4 className={cx('context-item-title')}>{title}:</h4>
-        {this.renderContextContent(value, title, true)}
-      </div>
+      this.renderContextContent(value, title, true)
     );
   };
 
@@ -159,12 +152,9 @@ class TestContext extends Component {
     // All context comes in stringified initially so we parse it here
     const ctx = JSON.parse(context);
     return (
-      <div className={cx(className, 'context')}>
-        <h4 className={cx('context-title')}>Additional Test Context</h4>
-        {Array.isArray(ctx)
+        Array.isArray(ctx)
           ? ctx.map(this.renderContext)
-          : this.renderContext(ctx)}
-      </div>
+          : this.renderContext(ctx)
     );
   }
 }

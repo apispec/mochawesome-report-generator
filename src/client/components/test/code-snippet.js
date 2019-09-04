@@ -7,6 +7,9 @@ import hljs from 'highlight.js/lib/highlight';
 import classNames from 'classnames/bind';
 import styles from './test.css';
 
+hljs.registerLanguage('http', require('highlight.js/lib/languages/http'));
+hljs.registerLanguage('json', require('highlight.js/lib/languages/json'));
+
 const cx = classNames.bind(styles);
 
 class CodeSnippet extends Component {
@@ -98,11 +101,11 @@ class CodeSnippet extends Component {
     return (
       !!code && (
         <pre
-          className={cxName}
+          className={cxName}>
+          <code
           ref={node => {
             this.node = node;
           }}>
-          <code>
             {isDiff && renderLegendLeft()}
             {isDiff && renderLegendRight()}
             {isInlineDiff ? code.map(mapInlineDiffCode) : code}

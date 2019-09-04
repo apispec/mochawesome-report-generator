@@ -32,6 +32,7 @@ class Test extends PureComponent {
   toggleExpandedState() {
     const { test, enableCode } = this.props;
     const { expanded } = this.state;
+    if (this.buttonDOM) this.buttonDOM.blur();
     if (
       (enableCode && test.pass) ||
       !!test.context ||
@@ -117,6 +118,7 @@ class Test extends PureComponent {
             aria-expanded={expanded}
             type="button"
             onClick={this.toggleExpandedState}
+            ref={(buttonDOM) => { this.buttonDOM = buttonDOM; }}
             disabled={isInactive}
             className={cx('header-btn')}>
             {testIcon()}
@@ -154,7 +156,7 @@ class Test extends PureComponent {
                   code={err.estack}
                   highlight={false}
                   label="Stack Trace"
-                  showLabel
+                  showLabel={true}
                 />
               }
               {
@@ -163,7 +165,7 @@ class Test extends PureComponent {
                   code={err.diff}
                   lang="diff"
                   label="Diff"
-                  showLabel
+                  showLabel={true}
                 />
               }
               {enableCode && (
@@ -171,7 +173,7 @@ class Test extends PureComponent {
                   className={cx('code-snippet')}
                   code={code}
                   label="Test Code"
-                  showLabel
+                  showLabel={true}
                 />
               )}
               {!!context && <TestContext context={context} />}

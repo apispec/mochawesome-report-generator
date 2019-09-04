@@ -166,9 +166,9 @@
 
 .body {
   display: none;
-  background-color: #fafafa;
+  /*background-color: #fafafa;
   border: 1px solid var(--grey50);
-  border-radius: 4px;
+  border-radius: 4px;*/
 
   @nest .expanded & {
     display: block;
@@ -192,7 +192,7 @@
   border-radius: 0;
 
   & + .code-snippet {
-    border-top: 1px solid #fff;
+    border-top: 5px solid #fff;
   }
 
   &:global(.hljs) {

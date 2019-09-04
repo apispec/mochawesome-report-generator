@@ -27,6 +27,7 @@ class Suite extends Component {
 
   toggleExpandedState() {
     const { expanded } = this.state;
+    if (this.buttonDOM) this.buttonDOM.blur();
     this.setState({ expanded: !expanded });
   }
 
@@ -128,6 +129,7 @@ class Suite extends Component {
               aria-expanded={expanded}
               type="button"
               onClick={this.toggleExpandedState}
+              ref={(buttonDOM) => { this.buttonDOM = buttonDOM; }}
               className={cx('header-btn')}>
               {title !== '' && <h3 className={cx('title')}>
                 <span>{title}</span>

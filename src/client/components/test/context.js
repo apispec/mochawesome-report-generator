@@ -87,7 +87,7 @@ class TestContext extends Component {
     );
   };
 
-  renderContextContent = (content, title, highlight = false) => {
+  renderContextContent = (content, title, language, highlight = false) => {
     // Videos
     if (isVideo(content)) {
       return this.renderVideo(content, title);
@@ -114,7 +114,10 @@ class TestContext extends Component {
         <CodeSnippet
           className={cx('code-snippet')}
           code={content}
-          highlight={false}
+          highlight={highlight}
+          lang={language}
+          label={title}
+          showLabel={true}
         />
       );
     }
@@ -122,7 +125,7 @@ class TestContext extends Component {
     // All other types (primitives, objects, arrays...)
     const code = JSON.stringify(content, null, 2);
     return (
-      <CodeSnippet className={cx('code-snippet')} code={code} highlight={highlight} label={title} showLabel />
+      <CodeSnippet className={cx('code-snippet')} code={code} highlight={highlight} lang={language} label={title} showLabel={true} />
     );
   };
 
@@ -140,10 +143,8 @@ class TestContext extends Component {
     }
 
     // Context is an object with title and value
-    const { title, value } = ctx;
-    return (
-      this.renderContextContent(value, title, true)
-    );
+    const { title, value, language } = ctx;
+    return (this.renderContextContent(value, title, language || 'javascript', true));
   };
 
   render() {

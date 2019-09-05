@@ -181,7 +181,7 @@ function copyAssets({ assetsDir }, distDir) {
 function getAssets(reportOptions) {
   const { assetsDir, cdn, dev, inlineAssets, reportDir, htmlModule } = reportOptions;
   const relativeAssetsDir = path.relative(reportDir, assetsDir);
-  const distDir = path.join(require.resolve(htmlModule + '/package.json'), 'dist');
+  const distDir = path.join(path.dirname(require.resolve(htmlModule + '/package.json')), 'dist');
 
   // Default URLs to assets path
   const assets = {

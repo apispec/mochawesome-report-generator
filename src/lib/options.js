@@ -33,6 +33,7 @@ const isFunction = require('lodash.isfunction');
  *                                       - context: display only hooks with context
  * @property {boolean} saveJson         Should report data be saved to JSON file (default: false)
  * @property {boolean} saveHtml         Should report be saved to HTML file (default: true)
+ * @property {string} htmlModule        Module that contains the HTML assets (default: mochawesome-report-generator)
  * @property {boolean} dev              Enable dev mode in the report,
  *                                      asssets loaded via webpack (default: false)
  */
@@ -148,6 +149,12 @@ export const yargsOptions = {
     default: true,
     describe: 'Save report to HTML file',
     boolean: true,
+  },
+  htmlModule: {
+    default: 'mochawesome-report-generator',
+    describe: 'Module that contains the HTML assets',
+    string: true,
+    requiresArg: true,
   },
   dev: {
     default: false,

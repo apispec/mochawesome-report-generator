@@ -9,7 +9,6 @@ const MainHTML = require('./main-html');
 const pkg = require('../package.json');
 const { getMergedOptions } = require('./options');
 
-const distDir = path.join(__dirname, '..', 'dist');
 const fileExtRegex = /\.[^.]*?$/;
 const semverRegex = /\d+\.\d+\.\d+(?:-(alpha|beta)\.\d+)?/;
 
@@ -165,7 +164,7 @@ function _shouldCopyAssets(assetsDir) {
  *
  * @param {Object} opts Report options
  */
-function copyAssets({ assetsDir }) {
+function copyAssets({ assetsDir }, distDir) {
   if (_shouldCopyAssets(assetsDir)) {
     fs.copySync(distDir, assetsDir, {
       filter: src => !/inline/.test(src),
@@ -180,8 +179,9 @@ function copyAssets({ assetsDir }) {
  * @return {Object} Object with assets props
  */
 function getAssets(reportOptions) {
-  const { assetsDir, cdn, dev, inlineAssets, reportDir } = reportOptions;
+  const { assetsDir, cdn, dev, inlineAssets, reportDir, htmlModule } = reportOptions;
   const relativeAssetsDir = path.relative(reportDir, assetsDir);
+  const distDir = path.join(require.resolve(htmlModule + '/package.json'), 'dist');
 
   // Default URLs to assets path
   const assets = {
@@ -215,7 +215,7 @@ function getAssets(reportOptions) {
 
   // Copy the assets if needed
   if (!dev && !cdn && !inlineAssets) {
-    copyAssets(reportOptions);
+    copyAssets(reportOptions, distDir);
   }
 
   return assets;

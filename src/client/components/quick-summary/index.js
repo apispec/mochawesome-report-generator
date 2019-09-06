@@ -1,12 +1,73 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import styled, { withTheme } from 'styled-components'
 import { Duration, Icon } from 'components';
-import classNames from 'classnames/bind';
-import styles from './quick-summary.css';
 
-const cx = classNames.bind(styles);
+import { clearfix, ListUnstyled } from '../../styles/base'
+import { media } from '../../styles/theme'
 
-const QuickSummary = ({ stats }) => {
+const Cnt = styled.div`
+    display: flex;
+    flex-direction: column;
+    padding: 0 12px;
+
+    ${media.greaterThan("small")`
+      flex-direction: initial;
+      padding: 14px 12px 0 0;
+    `}
+`
+
+const List = styled(ListUnstyled)`
+    ${clearfix}
+
+    display: flex;
+    transition: opacity 0.2s ease-out;
+    margin: 0 0 8px 0;
+
+    ${media.greaterThan("small")`
+      margin: 0;
+    `}
+`
+
+const Item = styled.li`
+    display: flex;
+    font-family: ${props => props.theme.font.light.family};
+    align-items: flex-start;
+    color: #fff;
+    font-size: 16px;
+    flex-basis: 25%;
+
+    ${media.greaterThan("small")`
+      font-size: 18px;
+      flex-basis: initial;
+      margin: 0 12px;
+    `}
+`
+
+const StyledIcon = styled(Icon)`
+    position: relative;
+    top: 2px;
+    font-size: 18px;
+    margin-right: 4px;
+
+    ${media.greaterThan("small")`
+      font-size: 24px;
+      width: 24px;
+      top: 0;
+    `}
+`
+
+const CircleIcon = styled(StyledIcon)`
+    font-size: 12px;
+    border-radius: 50%;
+    padding: 3px;
+
+    ${media.greaterThan("small")`
+      font-size: 18px;
+    `}
+`
+
+const QuickSummary = ({ stats, theme }) => {
   const {
     duration,
     suites,
@@ -17,55 +78,55 @@ const QuickSummary = ({ stats }) => {
     skipped,
   } = stats;
   return (
-    <div className={cx('cnt')}>
-      <ul className={cx('list')}>
-        <li className={cx('item', 'duration')} title="Duration">
-          <Icon name="timer" className={cx('icon')} />
+    <Cnt>
+      <List>
+        <Item title="Duration">
+          <Icon name="timer" />
           <Duration
-            unitsClassName={cx('duration-units')}
             timer={duration}
             isSummary
           />
-        </li>
-        <li className={cx('item', 'suites')} title="Suites">
-          <Icon name="library_books" className={cx('icon')} />
+        </Item>
+        <Item title="Suites">
+          <StyledIcon name="library_books" />
           {suites}
-        </li>
-        <li className={cx('item', 'tests')} title="Tests">
-          <Icon name="assignment" className={cx('icon')} />
+        </Item>
+        <Item title="Tests">
+          <StyledIcon name="assignment" />
           {testsRegistered}
-        </li>
-      </ul>
-      <ul className={cx('list')}>
-        <li className={cx('item', 'passes')} title="Passed">
-          <Icon name="check" className={cx('icon', 'circle-icon')} />
+        </Item>
+      </List>
+      <List>
+        <Item title="Passed">
+          <CircleIcon name="check" color={theme.color.green700} bgColor={theme.color.green100} />
           {passes}
-        </li>
-        <li className={cx('item', 'failures')} title="Failed">
-          <Icon name="close" className={cx('icon', 'circle-icon')} />
+        </Item>
+        <Item title="Failed">
+          <CircleIcon name="close" color={theme.color.red700} bgColor={theme.color.red100} />
           {failures}
-        </li>
+        </Item>
         {!!pending && (
-          <li className={cx('item', 'pending')} title="Pending">
-            <Icon name="pause" className={cx('icon', 'circle-icon')} />
+          <Item title="Pending">
+            <CircleIcon name="pause" color={theme.color.ltblue700} bgColor={theme.color.ltblue100} />
             {pending}
-          </li>
+          </Item>
         )}
         {!!skipped && (
-          <li className={cx('item', 'skipped')} title="Skipped">
-            <Icon name="stop" className={cx('icon', 'circle-icon')} />
+          <Item title="Skipped">
+            <CircleIcon name="stop" color={theme.color.grey700} bgColor={theme.color.grey100} />
             {skipped}
-          </li>
+          </Item>
         )}
-      </ul>
-    </div>
+      </List>
+    </Cnt>
   );
 };
 
 QuickSummary.propTypes = {
   stats: PropTypes.object,
+  theme: PropTypes.object,
 };
 
 QuickSummary.displayName = 'QuickSummary';
 
-export default QuickSummary;
+export default withTheme(QuickSummary);

@@ -1,11 +1,10 @@
-import React, { Component } from 'react';
+import React from 'react';
 import PropTypes from 'prop-types';
-import { CodeSnippet } from 'components/test';
+import styled from 'styled-components'
 import isString from 'lodash/isString';
-import classNames from 'classnames/bind';
-import styles from './test.css';
 
-const cx = classNames.bind(styles);
+import { CodeSnippet } from 'components/test';
+import { textOverflow } from '../../styles/base';
 
 const videoRegEx = /(?:mp4|webm)$/i;
 const imgRegEx = /(?:png|jpe?g|gif)$/i;
@@ -22,151 +21,248 @@ const isVideo = str => {
   return videoRegEx.test(hashIndex > 0 ? str.slice(0, hashIndex) : str);
 }
 
-class TestContext extends Component {
-  static displayName = 'TestContext';
+const contextPropTypes = {
+  ctx: PropTypes.oneOfType([
+    PropTypes.string,
+    PropTypes.object,
+    PropTypes.array,
+  ]),
+};
 
-  static propTypes = {
-    className: PropTypes.string,
-    context: PropTypes.oneOfType([
-      PropTypes.string,
-      PropTypes.object,
-      PropTypes.array,
-    ]),
-  };
+const contextTitlePropTypes = {
+  ...contextPropTypes,
+  title: PropTypes.string,
+};
 
-  renderVideo = (ctx, title) => {
-    const isUrl = urlRegEx.test(ctx);
-    const hasProtocol = protocolRegEx.test(ctx);
-    const linkUrl = isUrl && !hasProtocol ? `http://${ctx}` : ctx;
 
-    return (
-      <video controls src={linkUrl} className={cx('video')}>
-        <track kind="captions" />
-        {title}
-        <a
-          href={linkUrl}
-          className={cx('video-link')}
-          rel="noopener noreferrer"
-          target="_blank">
-          {linkUrl}
-        </a>
-      </video>
-    );
-  };
+const Video = styled.video`
+    display: block;
+    max-width: 100%;
+    height: auto;
+`
 
-  renderImage = (ctx, title) => {
-    const isUrl = urlRegEx.test(ctx);
-    const hasProtocol = protocolRegEx.test(ctx);
-    const linkUrl = isUrl && !hasProtocol ? `http://${ctx}` : ctx;
-    return (
-      <a
+const VideoLink = styled.a`
+    display: inline-block;
+    font-size: 11px;
+    padding: 0 1em 1em 1em;
+`
+
+const ContextVideo = ({ ctx, title }) => {
+  const isUrl = urlRegEx.test(ctx);
+  const hasProtocol = protocolRegEx.test(ctx);
+  const linkUrl = isUrl && !hasProtocol ? `http://${ctx}` : ctx;
+
+  return (
+    <Video controls src={linkUrl}>
+      <track kind="captions" />
+      {title}
+      <VideoLink
         href={linkUrl}
-        className={cx('image-link')}
         rel="noopener noreferrer"
         target="_blank">
-        <img src={linkUrl} className={cx('image')} alt={title} />
-      </a>
-    );
-  };
-
-  renderBase64Image = (ctx, title) => (
-    <img src={ctx} className={cx('image')} alt={title} />
+        {linkUrl}
+      </VideoLink>
+    </Video>
   );
-
-  renderLink = (url, title) => {
-    const linkUrl = `${protocolRegEx.test(url) ? '' : 'http://'}${url}`;
-    return (
-      <a
-        href={linkUrl}
-        className={cx('text-link')}
-        rel="noopener noreferrer"
-        target="_blank"
-        alt={title}>
-        {url}
-      </a>
-    );
-  };
-
-  renderContextContent = (content, title, highlight = false) => {
-    // Videos
-    if (isVideo(content)) {
-      return this.renderVideo(content, title);
-    }
-
-    // Images
-    if (imgRegEx.test(content)) {
-      return this.renderImage(content, title);
-    }
-
-    // Base64 Images
-    if (base64ImgRegEx.test(content)) {
-      return this.renderBase64Image(content, title);
-    }
-
-    // URLs
-    if (urlRegEx.test(content)) {
-      return this.renderLink(content, title);
-    }
-
-    // Simple string
-    if (isString(content)) {
-      return (
-        <CodeSnippet
-          className={cx('code-snippet')}
-          code={content}
-          highlight={false}
-        />
-      );
-    }
-
-    // All other types (primitives, objects, arrays...)
-    const code = JSON.stringify(content, null, 2);
-    return (
-      <CodeSnippet
-        className={cx('code-snippet')}
-        code={code}
-        highlight={highlight}
-      />
-    );
-  };
-
-  renderContext = (ctx, i) => {
-    const containerProps = {
-      className: cx('context-item'),
-    };
-    if (i !== undefined) {
-      containerProps.key = i;
-    }
-
-    // Context is a simple string
-    if (isString(ctx)) {
-      return <div {...containerProps}>{this.renderContextContent(ctx)}</div>;
-    }
-
-    // Context is an object with title and value
-    const { title, value } = ctx;
-    return (
-      <div {...containerProps}>
-        <h4 className={cx('context-item-title')}>{title}:</h4>
-        {this.renderContextContent(value, title, true)}
-      </div>
-    );
-  };
-
-  render() {
-    const { className, context } = this.props;
-
-    // All context comes in stringified initially so we parse it here
-    const ctx = JSON.parse(context);
-    return (
-      <div className={cx(className, 'context')}>
-        <h4 className={cx('context-title')}>Additional Test Context</h4>
-        {Array.isArray(ctx)
-          ? ctx.map(this.renderContext)
-          : this.renderContext(ctx)}
-      </div>
-    );
-  }
 }
+ContextVideo.propTypes = contextTitlePropTypes;
+
+const Image = styled.img`
+    display: block;
+    max-width: 100%;
+    height: auto;
+`
+
+const ImageLink = styled.a`
+    display: inline-block;
+    font-size: 11px;
+    padding: 0 1em 1em 1em;
+`
+
+const ContextImage = ({ ctx, title }) => {
+  const isUrl = urlRegEx.test(ctx);
+  const hasProtocol = protocolRegEx.test(ctx);
+  const linkUrl = isUrl && !hasProtocol ? `http://${ctx}` : ctx;
+
+  return (
+    <ImageLink
+      href={linkUrl}
+      rel="noopener noreferrer"
+      target="_blank">
+      <Image src={linkUrl} alt={title} />
+    </ImageLink>
+  );
+}
+ContextImage.propTypes = contextTitlePropTypes;
+
+const ContextImageBase64 = ({ ctx, title }) => {
+  return (
+    <Image src={ctx} alt={title} />
+  );
+}
+ContextImageBase64.propTypes = contextTitlePropTypes;
+
+const TextLink = styled.a`
+    display: inline-block;
+    padding: 0 1em 1em 1em;
+    font-family: ${props => props.theme.font.mono.family};
+    font-size: 11px;
+    color: ${props => props.theme.color.ltblue700};
+
+    &:hover {
+      color: ${props => props.theme.color.ltblue500};
+    }
+`
+
+const ContextLink = ({ ctx, title }) => {
+  const linkUrl = `${protocolRegEx.test(ctx) ? '' : 'http://'}${ctx}`;
+
+  return (
+    <TextLink
+      href={linkUrl}
+      rel="noopener noreferrer"
+      target="_blank"
+      alt={title}>
+      {ctx}
+    </TextLink>
+  );
+}
+ContextLink.propTypes = contextTitlePropTypes;
+
+const ContextString = ({ ctx }) => {
+  return (
+    <CodeSnippet
+      code={ctx}
+      highlight={false}
+      styles="padding-top: 0;"
+    />
+  );
+}
+ContextString.propTypes = contextPropTypes;
+
+const ContextJson = ({ ctx, highlight }) => {
+  const code = JSON.stringify(ctx, null, 2);
+
+  return (
+    <CodeSnippet
+      code={code}
+      highlight={highlight}
+      styles="padding-top: 0;"
+    />
+  );
+}
+ContextJson.propTypes = {
+  ...contextPropTypes,
+  highlight: PropTypes.bool,
+};
+
+const ContextItem = styled.div`
+    padding-top: 11px;
+`
+
+const ContextItemTitle = styled.h4`
+    ${textOverflow}
+
+    font-family: ${props => props.theme.font.medium.family};
+    font-size: 13px;
+    margin: 0;
+    padding: 0 11px 11px 11px;
+`
+
+const Context = styled.div`
+    background-color: ${props => props.theme.color.white};
+    border-top: 1px solid ${props => props.theme.color.grey50};
+    border-bottom-left-radius: 4px;
+    border-bottom-right-radius: 4px;
+`
+
+const ContextTitle = styled.h4`
+    ${textOverflow}
+
+    font-family: ${props => props.theme.font.base.family};
+    font-size: 13px;
+    color: ${props => props.theme.color.black54};
+    margin: 0;
+    padding: 11px 11px 0 11px;
+`
+
+const renderContextContent = (content, title, highlight = false) => {
+  // Videos
+  if (isVideo(content)) {
+    return <ContextVideo ctx={content} title={title} />;
+  }
+
+  // Images
+  if (imgRegEx.test(content)) {
+    return <ContextImage ctx={content} title={title} />;
+  }
+
+  // Base64 Images
+  if (base64ImgRegEx.test(content)) {
+    return <ContextImageBase64 ctx={content} title={title} />;
+  }
+
+  // URLs
+  if (urlRegEx.test(content)) {
+    return <ContextLink ctx={content} title={title} />;
+  }
+
+  // Simple string
+  if (isString(content)) {
+    return <ContextString ctx={content} title={title} />;
+  }
+
+  // All other types (primitives, objects, arrays...)
+  return <ContextJson ctx={content} title={title} highlight={highlight} />;
+};
+
+const renderContext = (ctx, i) => {
+  const containerProps = {
+    // className: cx('context-item'),
+  };
+  if (i !== undefined) {
+    containerProps.key = i;
+  }
+
+  // Context is a simple string
+  if (isString(ctx)) {
+    return <ContextItem {...containerProps}>{renderContextContent(ctx)}</ContextItem>;
+  }
+
+  // Context is an object with title and value
+  const { title, value } = ctx;
+  return (
+    <ContextItem {...containerProps}>
+      <ContextItemTitle>{title}:</ContextItemTitle>
+      {renderContextContent(value, title, true)}
+    </ContextItem>
+  );
+};
+
+const TestContext = props => {
+  const { context } = props;
+
+  // All context comes in stringified initially so we parse it here
+  const ctx = JSON.parse(context);
+  return (
+    <Context>
+      <ContextTitle>Additional Test Context</ContextTitle>
+      {Array.isArray(ctx)
+        ? ctx.map(renderContext)
+        : renderContext(ctx)}
+    </Context>
+  );
+}
+
+
+TestContext.propTypes = {
+  context: PropTypes.oneOfType([
+    PropTypes.string,
+    PropTypes.object,
+    PropTypes.array,
+  ]),
+};
+
+TestContext.displayName = 'TestContext';
 
 export default TestContext;

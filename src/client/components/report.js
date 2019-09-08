@@ -1,20 +1,19 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Provider, observer } from 'mobx-react';
+import { observer } from 'mobx-react-lite';
 import { ThemeProvider } from 'styled-components'
 import { Footer, Loader, Navbar, ReportBody } from 'components';
 import { NavMenu } from 'components/nav-menu';
-// import 'styles/app.global.css';
 import GlobalStyles from '../styles/app.global'
 import theme from '../styles/theme'
-import MobxDevTool from './mobxDevtool';
+import { StoreProvider } from './store'
 
 const MochawesomeReport = observer(props => {
-  const { openSideNav, reportTitle, stats, devMode, VERSION } = props.store;
+  const { openSideNav, reportTitle, stats, VERSION } = props.store;
 
   return (
     <ThemeProvider theme={theme}>
-      <Provider reportStore={props.store}>
+      <StoreProvider store={props.store}>
         <main>
           <GlobalStyles />
           <Navbar
@@ -26,9 +25,8 @@ const MochawesomeReport = observer(props => {
           <Loader />
           <Footer version={VERSION} />
           <NavMenu />
-          {devMode && <MobxDevTool position={{ bottom: 0, right: 20 }} />}
         </main>
-      </Provider>
+      </StoreProvider>
     </ThemeProvider>
   );
 });

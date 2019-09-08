@@ -1,37 +1,37 @@
 /* eslint-disable react/no-danger, max-len */
-import React, { PureComponent } from 'react';
+import React from 'react';
 import PropTypes from 'prop-types';
 import styled from 'styled-components'
 import classNames from 'classnames';
 import iconmap from './icon-map.json';
 
-class Icon extends PureComponent {
-  render() {
-    const { className, name, size, foreground, color, bgColor } = this.props;
-    const iconCode = iconmap[name];
-    const cxName = classNames(
-      'material-icons',
-      !!size && `md-${size}`,
-      !!foreground && `md-${foreground}`,
-      className
-    );
-    return (
-      !!iconCode && (
-        <StyledIcon
-          color={color}
-          bgColor={bgColor}
-          className={cxName}
-          dangerouslySetInnerHTML={{ __html: `&#x${iconCode};` }}
-        />
-      )
-    );
-  }
-}
 
 const StyledIcon = styled.i`
   ${props => props.color && `color: ${props.color};`}
   ${props => props.bgColor && `background-color: ${props.bgColor};`}
 `
+
+const Icon = React.memo(props => {
+  const { className, name, size, foreground, color, bgColor } = props;
+  const iconCode = iconmap[name];
+  const cxName = classNames(
+    'material-icons',
+    !!size && `md-${size}`,
+    !!foreground && `md-${foreground}`,
+    className
+  );
+
+  return (
+    !!iconCode && (
+      <StyledIcon
+        color={color}
+        bgColor={bgColor}
+        className={cxName}
+        dangerouslySetInnerHTML={{ __html: `&#x${iconCode};` }}
+      />
+    )
+  );
+})
 
 Icon.propTypes = {
   className: PropTypes.string,

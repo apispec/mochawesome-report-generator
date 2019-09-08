@@ -8,6 +8,5 @@ export { default as MochawesomeReport } from './report';
 export { default as Navbar } from './navbar';
 export * from './nav-menu';
 export { default as QuickSummary } from './quick-summary';
-export { default as RadioButton } from './radio-button';
 export { default as ReportBody } from './report-body';
 export { default as ToggleSwitch } from './toggle-switch';

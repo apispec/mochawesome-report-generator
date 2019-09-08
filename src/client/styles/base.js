@@ -1,5 +1,13 @@
+import { useState } from 'react'
 import styled, { css } from 'styled-components'
 import { media } from './theme'
+
+export const useToggle = initial => {
+    const [toggled, setToggle] = useState(initial);
+    const toggle = () => setToggle(prev => !prev);
+
+    return [toggled, toggle];
+}
 
 export const clearfix = css`
     &:before {
@@ -72,8 +80,9 @@ export const ListUnstyled = styled.ul`
     list-style: none;
     padding-left: 0;
 `
-// TODO: can be h4 or span
-export const TextOverflow = styled.h4`
-    list-style: none;
-    padding-left: 0;
+
+export const textOverflow = css`
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 `

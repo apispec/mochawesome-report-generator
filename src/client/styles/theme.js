@@ -1,11 +1,50 @@
-import { tint, opacify } from 'polished'
+import { tint, math, transparentize, shade } from 'polished'
 import { generateMedia } from "styled-media-query";
 
-export const media = generateMedia({
+export const size = {
     large: "1200px",
     medium: "992px",
     small: "768px"
-});
+}
+export const media = generateMedia(size);
+
+const baseColors = {
+    white: '#ffffff',
+    nearwhite: '#fafafa',
+    body: '#f2f2f2',
+    black: '#000000',
+    black38: 'rgba(0, 0, 0, 0.38)',
+    black54: 'rgba(0, 0, 0, 0.54)',
+    black87: 'rgba(0, 0, 0, 0.87)',
+    green700: '#388e3c',
+    green500: '#4caf50',
+    green200: '#a5d6a7',
+    green100: '#c8e6c9',
+    red700: '#d32f2f',
+    red500: '#f44336',
+    red100: '#ffcdd2',
+    ltblue700: '#0288d1',
+    ltblue500: '#03a9f4',
+    ltblue100: '#b3e5fc',
+    grey700: '#616161',
+    grey500: '#9e9e9e',
+    grey300: '#e0e0e0',
+    grey100: '#f5f5f5',
+    grey50: '#eceff1',
+    bluegrey800: '#37474f',
+}
+
+const colors = {
+    ...baseColors,
+    primary: shade(0.65, '#428bca'),
+    gray: {
+        regular: tint(0.335, baseColors.black),
+        light: tint(0.467, baseColors.black),
+        medium: tint(0.735, baseColors.black),
+        lighter: tint(0.935, baseColors.black),
+        lighterFaded: transparentize(0.95, tint(0.935, baseColors.black)),
+    },
+}
 
 const theme = {
     font: {
@@ -16,28 +55,33 @@ const theme = {
         },
         light: {
             family: 'robotolight'
-        }
+        },
+        medium: {
+            family: 'robotomedium'
+        },
+        mono: {
+            family: "'Menlo', 'Monaco', 'Consolas', 'Courier New', monospace"
+        },
+        lineHeightComputed: '20px'
     },
     color: {
-        text: 'black87',
-        body: '#f2f2f2',
-        black87: 'rgba(0, 0, 0, 0.87)',
-        ltblue500: '#03a9f4',
-        gray: {
-            base: '#000',
-            regular: props => { console.log('T', props); return tint(0.335, props.theme.color.gray.base) },
-            light: props => { console.log('T', props); return tint(0.467, props.theme.color.gray.base) },
-            lighter: props => { console.log('T', props); return tint(0.935, props.theme.color.gray.base) },
-            lighterFaded: props => { console.log('T', props); return opacify(0.95, props.theme.color.gray.lighter) },
+        ...colors,
+        text: colors.black87,
+        body: colors.body,
+        icon: {
+            active: {
+                light: colors.white,
+                dark: colors.black54
+            },
+            inactive: {
+                light: transparentize(0.5, colors.white),
+                dark: colors.black38
+            }
         },
-        green700: '#388e3c',
-        green100: '#c8e6c9',
-        red700: '#d32f2f',
-        red100: '#ffcdd2',
-        ltblue700: '#0288d1',
-        ltblue100: '#b3e5fc',
-        grey700: '#616161',
-        grey100: '#f5f5f5',
+        link: {
+            default: colors.primary,
+            hover: shade(0.15, colors.primary)
+        }
     },
     footer: {
         height: '60px'
@@ -71,17 +115,43 @@ const theme = {
     },
     shadow: {
         zDepth1: '0 2px 5px 0 rgba(0, 0, 0, 0.16), 0 2px 10px 0 rgba(0, 0, 0, 0.12)'
+    },
+    highlight: {
+        languages: [
+            'javascript',
+            'diff',
+        ]
+    },
+    headings: {
+        fontFamily: 'inherit',
+        fontWeight: 400,
+        lineHeight: 1.1,
+        color: 'inherit',
+        smallColor: colors.gray.light,
+        size3: '24px',
+        size6: '12px'
+    },
+    transition: {
+        default: {
+            duration: '0.2s',
+            easing: 'ease'
+        }
     }
 };
 
-// TODO
-theme.color.text = theme.color.black87;
-theme.container.sm.width = `calc(${theme.container.sm.width} + ${theme.grid.gutter.width})`
-theme.container.md.width = `calc(${theme.container.md.width} + ${theme.grid.gutter.width})`
-theme.container.lg.width = `calc(${theme.container.lg.width} + ${theme.grid.gutter.width})`
-/*
-const myUserTheme = (parentTheme) => ({
-    backgroundColor: 'ugly-green'
+const derived = (parentTheme) => ({
+    ...parentTheme,
+    container: {
+        sm: {
+            width: math(`${parentTheme.container.sm.width} + ${parentTheme.grid.gutter.width}`)
+        },
+        md: {
+            width: math(`${parentTheme.container.md.width} + ${parentTheme.grid.gutter.width}`)
+        },
+        lg: {
+            width: math(`${parentTheme.container.lg.width} + ${parentTheme.grid.gutter.width}`)
+        }
+    }
 })
-*/
-export default theme
+console.log('THEME', derived(theme));
+export default derived(theme)

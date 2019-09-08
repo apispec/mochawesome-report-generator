@@ -1,4 +1,8 @@
-/* Headings */
+import { css } from 'styled-components';
+
+// TODO: move to styled base types, e.g. Heading
+export default props => css`
+    /* Headings */
 h1,
 h2,
 h3,
@@ -11,16 +15,16 @@ h6,
 .h4,
 .h5,
 .h6 {
-  font-family: var(--headings-font-family);
-  font-weight: var(--headings-font-weight);
-  line-height: var(--headings-line-height);
-  color: var(--headings-color);
+  font-family: ${props.theme.headings.fontFamily};
+  font-weight: ${props.theme.headings.fontWeight};
+  line-height: ${props.theme.headings.lineHeight};
+  color: ${props.theme.headings.color};
 
   & small,
   & .small {
     font-weight: normal;
     line-height: 1;
-    color: var(--headings-small-color);
+    color: ${props.theme.headings.smallColor};
   }
 }
 
@@ -30,8 +34,8 @@ h2,
 .h2,
 h3,
 .h3 {
-  margin-top: var(--line-height-computed);
-  margin-bottom: calc(var(--line-height-computed) / 2);
+  margin-top: ${props.theme.font.lineHeightComputed};
+  margin-bottom: calc(${props.theme.font.lineHeightComputed} / 2);
 
   & small,
   & .small {
@@ -45,8 +49,8 @@ h5,
 .h5,
 h6,
 .h6 {
-  margin-top: calc(var(--line-height-computed) / 2);
-  margin-bottom: calc(var(--line-height-computed) / 2);
+  margin-top: calc(${props.theme.font.lineHeightComputed} / 2);
+  margin-bottom: calc(${props.theme.font.lineHeightComputed} / 2);
 
   & small,
   & .small {
@@ -66,7 +70,7 @@ h2,
 
 h3,
 .h3 {
-  font-size: var(--font-size-h3);
+  font-size: ${props.theme.headings.size3};
 }
 
 h4,
@@ -81,7 +85,7 @@ h5,
 
 h6,
 .h6 {
-  font-size: var(--font-size-h6);
+  font-size: ${props.theme.headings.size6};
 }
 
 /* Body text */
@@ -146,5 +150,7 @@ ol {
 
 /* Pre and Code */
 code {
-  font-family: var(--font-family-mono);
+  font-family: ${props.theme.font.mono.family};
 }
+
+`

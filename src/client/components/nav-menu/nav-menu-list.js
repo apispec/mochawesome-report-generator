@@ -1,47 +1,46 @@
-import React, { Component } from 'react';
+import React from 'react';
 import PropTypes from 'prop-types';
-import isEqual from 'lodash/isEqual';
+import styled from 'styled-components'
 import { NavMenuItem } from 'components/nav-menu';
-import classNames from 'classnames/bind';
-import styles from './nav-menu.css';
+import { ListUnstyled } from '../../styles/base';
 
-const cx = classNames.bind(styles);
 
-class NavMenuList extends Component {
-  static propTypes = {
-    suites: PropTypes.array,
-    showPassed: PropTypes.bool,
-    showFailed: PropTypes.bool,
-    showPending: PropTypes.bool,
-    showSkipped: PropTypes.bool,
-  };
+const SubList = styled(ListUnstyled)`
+    padding-left: 24px;
+    margin: 0 0 2px 0;
+`
 
-  shouldComponentUpdate(nextProps) {
-    return !isEqual(this.props, nextProps);
-  }
+const NavMenuList = React.memo(props => {
+  const {
+    suites,
+    showPassed,
+    showFailed,
+    showPending,
+    showSkipped,
+  } = props;
+  const navItemProps = { showPassed, showFailed, showPending, showSkipped };
 
-  render() {
-    const {
-      suites,
-      showPassed,
-      showFailed,
-      showPending,
-      showSkipped,
-    } = this.props;
-    const navItemProps = { showPassed, showFailed, showPending, showSkipped };
+  return (
+    !!suites && (
+      <div>
+        {suites.map(subSuite => (
+          <SubList key={subSuite.uuid}>
+            <NavMenuItem suite={subSuite} {...navItemProps} />
+          </SubList>
+        ))}
+      </div>
+    )
+  );
+})
 
-    return (
-      !!suites && (
-        <div>
-          {suites.map(subSuite => (
-            <ul key={subSuite.uuid} className={cx('list', 'sub')}>
-              <NavMenuItem suite={subSuite} {...navItemProps} />
-            </ul>
-          ))}
-        </div>
-      )
-    );
-  }
-}
+NavMenuList.propTypes = {
+  suites: PropTypes.array,
+  showPassed: PropTypes.bool,
+  showFailed: PropTypes.bool,
+  showPending: PropTypes.bool,
+  showSkipped: PropTypes.bool,
+};
+
+NavMenuList.displayName = 'NavMenuList';
 
 export default NavMenuList;

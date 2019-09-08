@@ -1,206 +1,297 @@
-import React, { Component } from 'react';
-import PropTypes from 'prop-types';
-import {reaction} from 'mobx';
-import { inject, observer } from 'mobx-react';
+import React, { useRef, useCallback, useEffect } from 'react';
+import styled, { css } from 'styled-components'
+import { reaction } from 'mobx';
+import { observer } from 'mobx-react-lite';
 import { format } from 'date-fns';
 import find from 'lodash/find';
-import { Icon, ToggleSwitch, DropdownSelector } from 'components';
+
+import { Icon, DropdownSelector } from 'components';
 import { NavMenuItem } from 'components/nav-menu';
-import classNames from 'classnames/bind';
-import styles from './nav-menu.css';
+import { useStore } from '../store'
+import { useEventListener } from '../hooks'
+import { media } from '../../styles/theme';
+import { ButtonBase, ListUnstyled } from '../../styles/base';
+import { Label } from '../dropdown-selector';
+import ToggleSwitch, { ToggleLabel } from '../toggle-switch';
 
-const cx = classNames.bind(styles);
 
-@inject('reportStore')
-@observer
-class NavMenu extends Component {
-  static propTypes = {
-    reportStore: PropTypes.shape({
-      results: PropTypes.array,
-      closeSideNav: PropTypes.func,
-      reportTitle: PropTypes.string,
-      setShowHooks: PropTypes.func,
-      showFailed: PropTypes.bool,
-      showHooks: PropTypes.string,
-      showHooksOptions: PropTypes.array,
-      showPassed: PropTypes.bool,
-      showPending: PropTypes.bool,
-      showSkipped: PropTypes.bool,
-      sideNavOpen: PropTypes.bool,
-      stats: PropTypes.object,
-      toggleFilter: PropTypes.func,
-    }),
-  };
+const Overlay = styled.div`
+    display: none;
+    background: rgba(0, 0, 0, 0.5);
 
-  componentDidMount() {
-    document.addEventListener('keydown', this.onKeydown);
-    if (this.overlay) {
-      this.overlay.addEventListener('click', this.closeMenu);
+    ${media.greaterThan("small")`
+      display: block;
+      position: fixed;
+      transition: all 0.2s ease-out;
+      top: 0;
+      right: 0;
+      bottom: 0;
+      left: 0;
+      cursor: pointer;
+      opacity: 0;
+    `}
+`
+
+const Menu = styled.nav`
+    position: absolute;
+    transition: all 0.15s cubic-bezier(0.25, 1, 0.8, 1);
+    transform: translate(-100%, 0);
+    width: 100%;
+    z-index: 1;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    overflow: auto;
+    background: #fff;
+
+    ${media.greaterThan("small")`
+      width: 320px;
+      left: auto;
+    `}
+`
+
+const Wrap = styled.div`
+    position: fixed;
+    z-index: 2010;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    overflow: hidden;
+    visibility: hidden;
+
+    ${props => props.open && `
+      visibility: visible;
+
+      & ${Overlay} {
+        opacity: 1;
+      }
+
+      & ${Menu} {
+        transform: translate(0, 0);
+      }
+    `}
+`
+
+const Button = styled(ButtonBase)`
+    position: absolute;
+    top: 16px;
+    right: 16px;
+    color: ${props => props.theme.color.black54};
+
+    &:hover,
+    &:active {
+      color: ${props => props.theme.color.black87};
     }
-    this.disposer = reaction(
-      () => this.props.reportStore.sideNavOpen,
-      this.onOpenChange,
-      { delay: 100 }
-    )
-  }
+`
 
-  componentWillUnmount() {
-    document.removeEventListener('keydown', this.onKeydown);
-    this.overlay.removeEventListener('click', this.closeMenu);
-    this.disposer();
-  }
+const Section = styled.div`
+    padding: 0 16px;
+    border-bottom: 1px solid ${props => props.theme.color.grey300};
+`
 
-  closeMenu = () => {
-    const { closeSideNav, sideNavOpen } = this.props.reportStore;
+const Date = styled.h6`
+    color: ${props => props.theme.color.black54};
+`
+
+const MainList = styled(ListUnstyled)`
+    margin: 8px 0;
+`
+
+const control = css`
+    display: flex;
+    position: relative;
+    margin: 8px 0;
+    align-items: center;
+`
+
+const StyledDropdown = styled(DropdownSelector)`
+    ${control}
+
+    & ${Label} {
+      display: inline-block;
+      flex-grow: 1;
+      font-family: ${props => props.theme.font.base.family};
+      font-size: 13px;
+      vertical-align: top;
+      line-height: 24px;
+    }
+`
+
+const StyledToggleSwitch = styled(ToggleSwitch)`
+    ${control}
+
+    & ${ToggleLabel} {
+      flex-grow: 1;
+      font-family: ${props => props.theme.font.base.family};
+      font-size: 13px;
+      vertical-align: top;
+      line-height: 24px;
+    }
+`
+
+const NavMenu = observer(() => {
+  const reportStore = useStore();
+  const overlay = useRef(null);
+  const closeBtn = useRef(null);
+
+  const overlayRef = useCallback(node => {
+    overlay.current = node;
+  }, []);
+  const closeBtnRef = useCallback(node => {
+    closeBtn.current = node;
+  }, []);
+
+  const closeMenu = () => {
+    const { closeSideNav, sideNavOpen } = reportStore;
     if (sideNavOpen) {
       closeSideNav();
     }
   }
 
-  onKeydown = (e) => {
-    if (e.key=== 'Escape'){
-      this.closeMenu();
+  const onKeydown = (e) => {
+    if (e.key === 'Escape') {
+      closeMenu();
     }
   }
 
-  onOpenChange = (isOpen) => {
-    if (isOpen && this.closeBtn) {
-      this.closeBtn.focus();
+  const onOpenChange = (isOpen) => {
+    if (isOpen && closeBtn.current) {
+      closeBtn.current.focus();
     }
   }
 
-  render() {
-    const {
-      results,
-      closeSideNav,
-      reportTitle,
-      setShowHooks,
-      showFailed,
-      showHooks,
-      showHooksOptions,
-      showPassed,
-      showPending,
-      showSkipped,
-      sideNavOpen,
-      stats,
-      toggleFilter,
-    } = this.props.reportStore;
+  useEventListener('keydown', onKeydown);
+  useEventListener('click', closeMenu, overlay.current);
 
-    const navItemProps = {
-      showPassed,
-      showFailed,
-      showPending,
-      showSkipped,
-    };
+  useEffect(() => {
+    return reaction(
+      () => reportStore.sideNavOpen,
+      onOpenChange,
+      { delay: 100 }
+    )
+  }, [reportStore])
 
-    const showHooksOpts = showHooksOptions.map(opt => ({
-      title: `${opt.charAt(0).toUpperCase()}${opt.slice(1)}`,
-      value: opt,
-    }));
 
-    const showHooksSelected = find(showHooksOpts, { value: showHooks });
+  const {
+    results,
+    closeSideNav,
+    reportTitle,
+    setShowHooks,
+    showFailed,
+    showHooks,
+    showHooksOptions,
+    showPassed,
+    showPending,
+    showSkipped,
+    sideNavOpen,
+    stats,
+    toggleFilter,
+  } = reportStore;
 
-    return (
-      <div className={cx('wrap', { open: sideNavOpen })}>
-        <div
-          className={cx('overlay')}
-          ref={ node => { this.overlay = node; } }
-        />
-        <nav className={cx('menu')}>
-          <button
-            type="button"
-            onClick={closeSideNav}
-            className={cx('close-btn')}
-            ref={ node => { this.closeBtn = node; } }>
-            <Icon name="close" />
-          </button>
-          <div className={cx('section')}>
-            <h3 className={cx('title')}>{reportTitle}</h3>
-            <h6 className={cx('date')}>
-              {format(stats.end, 'dddd, MMMM D, YYYY h:mma')}
-            </h6>
-          </div>
-          <div className={cx('section')}>
-            <ToggleSwitch
-              className={cx('control')}
-              label="Show Passed"
-              labelClassName={cx('control-label')}
-              icon="check"
-              iconClassName={cx('toggle-icon-passed')}
-              id="passed-toggle"
-              active={showPassed}
-              disabled={stats.passes === 0}
-              toggleFn={() => toggleFilter('showPassed')}
-            />
+  const navItemProps = {
+    showPassed,
+    showFailed,
+    showPending,
+    showSkipped,
+  };
 
-            <ToggleSwitch
-              className={cx('control')}
-              label="Show Failed"
-              labelClassName={cx('control-label')}
-              icon="close"
-              iconClassName={cx('toggle-icon-failed')}
-              id="failed-toggle"
-              active={showFailed}
-              disabled={stats.failures === 0}
-              toggleFn={() => toggleFilter('showFailed')}
-            />
+  const showHooksOpts = showHooksOptions.map(opt => ({
+    title: `${opt.charAt(0).toUpperCase()}${opt.slice(1)}`,
+    value: opt,
+  }));
 
-            <ToggleSwitch
-              className={cx('control')}
-              label="Show Pending"
-              labelClassName={cx('control-label')}
-              icon="pause"
-              iconClassName={cx('toggle-icon-pending')}
-              id="pending-toggle"
-              active={showPending}
-              disabled={stats.pending === 0}
-              toggleFn={() => toggleFilter('showPending')}
-            />
+  const showHooksSelected = find(showHooksOpts, { value: showHooks });
 
-            <ToggleSwitch
-              className={cx('control')}
-              label="Show Skipped"
-              labelClassName={cx('control-label')}
-              icon="stop"
-              iconClassName={cx('toggle-icon-skipped')}
-              id="skipped-toggle"
-              active={showSkipped}
-              disabled={stats.skipped === 0}
-              toggleFn={() => toggleFilter('showSkipped')}
-            />
+  return (
+    <Wrap open={sideNavOpen}>
+      <Overlay ref={overlayRef} />
+      <Menu>
+        <Button
+          type="button"
+          onClick={closeSideNav}
+          ref={closeBtnRef}>
+          <Icon name="close" />
+        </Button>
+        <Section>
+          <h3>{reportTitle}</h3>
+          <Date>
+            {format(stats.end, 'dddd, MMMM D, YYYY h:mma')}
+          </Date>
+        </Section>
+        <Section>
+          <StyledToggleSwitch
+            label="Show Passed"
+            icon="check"
+            iconColor="green500"
+            id="passed-toggle"
+            active={showPassed}
+            disabled={stats.passes === 0}
+            toggleFn={() => toggleFilter('showPassed')}
+          />
 
-            <DropdownSelector
-              className={cx('control')}
-              label="Show Hooks"
-              labelClassName={cx('control-label')}
-              selected={showHooksSelected}
-              selections={showHooksOpts}
-              onSelect={item => setShowHooks(item.value)}
-            />
-          </div>
-          <div className={cx('section')}>
-            {!!results &&
-              results.map(suite => (
-                <ul
-                  key={suite.uuid}
-                  className={cx('list', 'main', {
-                    'no-tests': !suite.tests || suite.tests.length === 0,
-                  })}>
-                  {!!suite.suites &&
-                    suite.suites.map(subSuite => (
-                      <NavMenuItem
-                        key={subSuite.uuid}
-                        suite={subSuite}
-                        {...navItemProps}
-                      />
-                    ))}
-                </ul>
-              ))}
-          </div>
-        </nav>
-      </div>
-    );
-  }
-}
+          <StyledToggleSwitch
+            label="Show Failed"
+            icon="close"
+            iconColor="red500"
+            id="failed-toggle"
+            active={showFailed}
+            disabled={stats.failures === 0}
+            toggleFn={() => toggleFilter('showFailed')}
+          />
+
+          <StyledToggleSwitch
+            label="Show Pending"
+            icon="pause"
+            iconColor="ltblue500"
+            id="pending-toggle"
+            active={showPending}
+            disabled={stats.pending === 0}
+            toggleFn={() => toggleFilter('showPending')}
+          />
+
+          <StyledToggleSwitch
+            label="Show Skipped"
+            icon="stop"
+            iconColor="grey500"
+            id="skipped-toggle"
+            active={showSkipped}
+            disabled={stats.skipped === 0}
+            toggleFn={() => toggleFilter('showSkipped')}
+          />
+
+          <StyledDropdown
+            label="Show Hooks"
+            selected={showHooksSelected}
+            selections={showHooksOpts}
+            onSelect={item => setShowHooks(item.value)}
+          />
+        </Section>
+        <Section>
+          {!!results &&
+            results.map(suite => (
+              <MainList key={suite.uuid}>
+                {!!suite.suites &&
+                  suite.suites.map(subSuite => (
+                    <NavMenuItem
+                      key={subSuite.uuid}
+                      suite={subSuite}
+                      noTests={!suite.tests || suite.tests.length === 0}
+                      {...navItemProps}
+                    />
+                  ))}
+              </MainList>
+            ))}
+        </Section>
+      </Menu>
+    </Wrap>
+  );
+
+});
+
+NavMenu.propTypes = {
+};
+
+NavMenu.displayName = 'NavMenu';
 
 export default NavMenu;

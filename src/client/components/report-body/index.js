@@ -1,20 +1,30 @@
-import React from 'react';
-import PropTypes from 'prop-types';
+import React, { useEffect } from 'react';
 import { reaction } from 'mobx';
-import { inject, observer } from 'mobx-react';
+import { observer } from 'mobx-react-lite';
+import styled from 'styled-components'
+
 import { Suite } from 'components/suite';
-import cx from 'classnames';
+import { useStore } from '../store'
+import { Container } from '../../styles/base';
+import { media } from '../../styles/theme'
 
-@inject('reportStore')
-@observer
-class ReportBody extends React.Component {
-  static propTypes = {
-    reportStore: PropTypes.object,
-  };
+const Details = styled(Container)`
+    padding-top: calc(${props => props.theme.navbar.default.height} + 24px);
 
-  componentDidMount() {
-    this.updateSuites();
-    this.disposer = reaction(
+    ${media.greaterThan("small")`
+      padding-top: calc(${props => props.theme.navbar.short.height} + 24px);
+    `}
+`
+
+const ReportBody = observer(() => {
+  const store = useStore();
+
+  useEffect(() => {
+    const updateSuites = timeout => store.updateFilteredSuites(timeout);
+
+    updateSuites();
+
+    const disposer = reaction(
       () => {
         const {
           showPassed,
@@ -22,7 +32,7 @@ class ReportBody extends React.Component {
           showPending,
           showSkipped,
           showHooks,
-        } = this.props.reportStore;
+        } = store;
         return {
           showPassed,
           showFailed,
@@ -31,39 +41,32 @@ class ReportBody extends React.Component {
           showHooks,
         };
       },
-      () => this.updateSuites(0),
+      () => updateSuites(0),
       { delay: 300 }
     );
-  }
 
-  componentWillUnmount() {
-    this.disposer();
-  }
+    return disposer;
+  }, [store]);
 
-  updateSuites(timeout) {
-    this.props.reportStore.updateFilteredSuites(timeout);
-  }
 
-  render() {
-    const {
-      enableCode,
-      enableChart,
-      filteredSuites: suites,
-    } = this.props.reportStore;
+  const {
+    enableCode,
+    enableChart,
+    filteredSuites: suites,
+  } = store;
 
-    return (
-      <div id="details" className={cx('details', 'container')}>
-        {suites.map(suite => (
-          <Suite
-            key={suite.uuid}
-            suite={suite}
-            enableChart={enableChart}
-            enableCode={enableCode}
-          />
-        ))}
-      </div>
-    );
-  }
-}
+  return (
+    <Details>
+      {suites.map(suite => (
+        <Suite
+          key={suite.uuid}
+          suite={suite}
+          enableChart={enableChart}
+          enableCode={enableCode}
+        />
+      ))}
+    </Details>
+  )
+})
 
 export default ReportBody;

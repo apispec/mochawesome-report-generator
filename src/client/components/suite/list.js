@@ -1,13 +1,17 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import classNames from 'classnames/bind';
-import styles from './suite.css';
+import styled from 'styled-components'
+
 import Suite from './suite';
 
-const cx = classNames.bind(styles);
+const List = styled.ul`
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+`
 
 const SuiteList = ({ suites, enableChart, enableCode, main }) => (
-  <ul className={cx('list', { 'list-main': main })}>
+  <List>
     {!!suites &&
       suites.map(suite => (
         <Suite
@@ -15,9 +19,10 @@ const SuiteList = ({ suites, enableChart, enableCode, main }) => (
           suite={suite}
           enableChart={enableChart}
           enableCode={enableCode}
+          isMain={main}
         />
       ))}
-  </ul>
+  </List>
 );
 
 SuiteList.propTypes = {

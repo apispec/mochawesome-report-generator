@@ -1,10 +1,35 @@
 /* eslint-disable max-len */
 import React from 'react';
 import PropTypes from 'prop-types';
-import classNames from 'classnames/bind';
-import styles from './footer.css';
+import styled from 'styled-components'
 
-const cx = classNames.bind(styles);
+import { Container } from '../../styles/base';
+
+
+const Component = styled.footer`
+    position: absolute;
+    bottom: 0;
+    width: 100%;
+
+    /* Set the fixed height of the footer here */
+    height: ${props => props.theme.footer.height};
+    color: ${props => props.theme.color.black38};
+    text-align: center;
+
+    & p {
+      font-size: 12px;
+      margin: 10px 0;
+    }
+
+    & a {
+      color: ${props => props.theme.color.black54};
+      transition: ${props => props.theme.link.transition};
+
+      &:hover {
+        color: ${props => props.theme.color.black87};
+      }
+    }
+`
 
 const urls = {
   site: 'http://adamgruber.github.io/mochawesome/',
@@ -14,8 +39,8 @@ const urls = {
 const Footer = ({ version }) => {
   const copyrightYear = new Date().getFullYear();
   return (
-    <footer className={cx('component')}>
-      <div className="container">
+    <Component>
+      <Container>
         <p>
           &copy;
           {copyrightYear}
@@ -30,8 +55,8 @@ const Footer = ({ version }) => {
           • <span>v{version}</span>
         </p>
         {}
-      </div>
-    </footer>
+      </Container>
+    </Component>
   );
 };
 

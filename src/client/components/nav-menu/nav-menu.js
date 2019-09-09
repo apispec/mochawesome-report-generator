@@ -5,13 +5,13 @@ import { observer } from 'mobx-react-lite';
 import { format } from 'date-fns';
 import find from 'lodash/find';
 
-import { Icon, DropdownSelector } from 'components';
+import { Icon } from 'components';
 import { NavMenuItem } from 'components/nav-menu';
 import { useStore } from '../store'
 import { useEventListener } from '../hooks'
 import { media } from '../../styles/theme';
 import { ButtonBase, ListUnstyled } from '../../styles/base';
-import { Label } from '../dropdown-selector';
+import DropdownSelector, { Label } from '../dropdown-selector';
 import ToggleSwitch, { ToggleLabel } from '../toggle-switch';
 
 

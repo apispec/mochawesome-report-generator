@@ -2,10 +2,9 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import styled from 'styled-components'
 
-import { Dropdown } from '..';
 import Icon from '../material-icon';
 import { MainList, MenuButton } from '../dropdown/menu';
-import { ToggleButton } from '../dropdown';
+import Dropdown, { ToggleButton } from '../dropdown';
 
 const ToggleIcon = styled(Icon).attrs(() => ({
   name: 'arrow_drop_down',
